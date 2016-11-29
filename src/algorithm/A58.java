@@ -7,9 +7,11 @@ import java.util.*;
  * Created by zihua on 16-11-17.
  */
 public class A58 {
+
     private Scanner input=new Scanner(new BufferedInputStream(System.in));
 
     public void solve(){
+
         String s=input.nextLine();
         Character []set={'h','e','l','l','o'};
         int i=0;
