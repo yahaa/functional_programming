@@ -27,7 +27,7 @@ public class Computer {
     public Computer(int[] available, int[][] max) {
         this.available = available;
         this.max = max;
-        this.need = max;
+        this.need = cloneMatrix(max);
         allcation = new int[max.length][max[0].length];
         totalP = max.length;
         finish = new boolean[totalP];
@@ -47,8 +47,10 @@ public class Computer {
      * @param requestVector 当前进程 发出的请求向量
      */
     public void request(int processId, int[] requestVector) {
+        init();
         boolean ok=false;
         if(bAE(requestVector,available)&&bAE(requestVector,need[processId])){
+            System.out.println("ididididididid    "+processId);
             ok=tryAllot(processId,requestVector);
         }
         if(ok){
@@ -91,23 +93,33 @@ public class Computer {
      * @return 是否安全
      */
     private void safeTest(int[] work, int id, int count) {
-        if (count >= totalP-1) {
+        if (count >= totalP) {
             flag = true;
             return;
         }
         if(finish[id]==false&&bAE(tNeed[id],work)){
-            System.out.println("jaajjsdf");
             int[] t = cloneVector(work);
             work = vectorAdd(work, tAllcation[id]);
             finish[id] = true;
             for (int i = 0; i < totalP; i++) {
                 safeTest(work, id, count++);
+                work = cloneVector(t);
+                finish[id] = false;
             }
-            work = cloneVector(t);
-            finish[id] = false;
+
         }
 
+    }
 
+    /**
+     * 初始化
+     */
+    private void init(){
+        tNeed=null;
+        tAllcation=null;
+        tAvailable=null;
+        Arrays.fill(finish,false);
+        flag=false;
     }
 
     /**
