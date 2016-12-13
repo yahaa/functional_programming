@@ -76,6 +76,11 @@ public class Computer {
         return flag;
     }
 
+    /**
+     * 真正的分配
+     * @param id
+     * @param rVector 请求向量
+     */
     public void allot(int id,int[] rVector){
         allcation[id]=vectorAdd(allcation[id],rVector);
         need[id]=vectorSub(need[id],rVector);
