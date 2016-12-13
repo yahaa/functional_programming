@@ -18,7 +18,7 @@ public class Test{
                 max[i][j]=random.nextInt(10);
             }
         }
-        DeadLock a=new DeadLock(resouse,max);
+        Computer a=new Computer(resouse,max);
         System.out.println("max");
         a.showMax();
         System.out.println("need");
