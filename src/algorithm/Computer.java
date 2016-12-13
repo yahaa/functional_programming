@@ -9,6 +9,7 @@ import java.util.Arrays;
 public class Computer {
 
     private int totalP;
+    private boolean flag=false;
     private int[] available;
     private int[][] max;
     private int[][] allcation;
@@ -32,38 +33,32 @@ public class Computer {
         finish = new boolean[totalP];
 
     }
+    public void showAll(){
+        System.out.println("total "+totalP);
+        showAvailable();
+        showMax();
+        showNeed();
+        showAllcation();
+    }
+
 
     /**
      * @param processId     当前发出请求的进程的 id
      * @param requestVector 当前进程 发出的请求向量
      */
     public void request(int processId, int[] requestVector) {
-        if (allot(processId, requestVector)) {
-            System.out.println("can allot !");
-        } else {
-            System.out.println("can't allot !");
+        boolean ok=false;
+        if(bAE(requestVector,available)&&bAE(requestVector,need[processId])){
+            ok=tryAllot(processId,requestVector);
         }
-    }
-
-    /**
-     * 分配资源函数
-     *
-     * @param processId     进程号
-     * @param requestVector 请求向量
-     * @return 返回是够分配
-     */
-    private boolean allot(int processId, int[] requestVector) {
-        boolean result = false;
-        if (bAE(requestVector, need[processId]) && bAE(requestVector, available)) {
-            tryAllot(processId, requestVector);
+        if(ok){
+            allot(processId,requestVector);
         }
-        return result;
-    }
 
+    }
 
     /**
      * 尝试分配
-     *
      * @param id      进程号
      * @param rVector 请求向量
      * @return 是否安全
@@ -73,38 +68,61 @@ public class Computer {
         tAvailable = vectorSub(tAvailable, rVector);
         tAllcation[id] = vectorAdd(tAllcation[id], rVector);
         tNeed[id] = vectorSub(tNeed[id], rVector);
-        Boolean flag = Boolean.FALSE;
+        flag=false;
         for (int i = 0; i < totalP; i++) {
             if (flag) break;
-            safeTest(tAvailable, flag, i, 0);
+            safeTest(tAvailable,i, 0);
         }
         return flag;
+    }
+
+    public void allot(int id,int[] rVector){
+        allcation[id]=vectorAdd(allcation[id],rVector);
+        need[id]=vectorSub(need[id],rVector);
+        available=vectorSub(available,rVector);
     }
 
     /**
      * @return 是否安全
      */
-    private void safeTest(int[] work, Boolean flag, int id, int count) {
-        if (finish[id] || !bAE(tNeed[id], work)) return;
-        if (count == totalP) {
+    private void safeTest(int[] work, int id, int count) {
+        if (count >= totalP-1) {
             flag = true;
             return;
         }
-        int[] t = cloneVector(work);
-        work = vectorAdd(work, tAllcation[id]);
-        finish[id] = true;
-        for (int i = 0; i < totalP; i++) {
-            safeTest(work, flag, id, count++);
+        if(finish[id]==false&&bAE(tNeed[id],work)){
+            System.out.println("jaajjsdf");
+            int[] t = cloneVector(work);
+            work = vectorAdd(work, tAllcation[id]);
+            finish[id] = true;
+            for (int i = 0; i < totalP; i++) {
+                safeTest(work, id, count++);
+            }
+            work = cloneVector(t);
+            finish[id] = false;
         }
-        work = cloneVector(t);
-        finish[id] = false;
 
+
+    }
+
+    /**
+     * @param a 向量 a
+     * @param b 向量 b
+     * @return 返回向量  a <= b
+     */
+    private boolean bAE(int[] a, int[] b) {
+        int len = a.length;
+        for (int i = 0; i < len; i++) {
+            if (a[i]>b[i]) return false;
+        }
+        return true;
     }
 
     /**
      * 查看当前的需求矩阵
      */
     public void showNeed() {
+        System.out.println("need");
         show(need);
     }
 
@@ -112,16 +130,19 @@ public class Computer {
      * 查看当前的 可用资源向量
      */
     public void showAvailable() {
+        System.out.println("available");
         int len = available.length;
         for (int i = 0; i < len; i++) {
             System.out.print(available[i] + " ");
         }
+        System.out.println();
     }
 
     /**
      * 查看当前已经分配的矩阵
      */
     public void showAllcation() {
+        System.out.println("allcation");
         show(allcation);
     }
 
@@ -129,6 +150,7 @@ public class Computer {
      * 查看进程最开始的最大需求矩阵
      */
     public void showMax() {
+        System.out.println("max");
         show(max);
     }
 
@@ -166,18 +188,6 @@ public class Computer {
         return a;
     }
 
-    /**
-     * @param a 向量 a
-     * @param b 向量 b
-     * @return 返回向量  a <= b
-     */
-    private boolean bAE(int[] a, int[] b) {
-        int len = a.length;
-        for (int i = 0; i < len; i++) {
-            if (a[i] - b[i] > 0) return false;
-        }
-        return true;
-    }
 
     /**
      * @param a 要拷贝的矩阵
