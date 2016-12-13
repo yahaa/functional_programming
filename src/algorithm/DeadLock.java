@@ -1,14 +1,21 @@
 package algorithm;
 
 
+import java.util.Arrays;
+
 /**
  * Created by zihua on 16-12-13.
  */
 public class DeadLock {
+    private int totalP;
     private int[] available;
     private int[][] max;
     private int[][] allcation;
     private int[][] need;
+    private int[] tAvailable;
+    private int[][] tAllcation;
+    private int[][] tNeed;
+    private boolean[] finish;
 
     /**
      *
@@ -21,6 +28,8 @@ public class DeadLock {
         this.max = max;
         this.need = max;
         allcation = new int[max.length][max[0].length];
+        totalP=max.length;
+        finish=new boolean[totalP];
 
     }
 
@@ -146,15 +155,41 @@ public class DeadLock {
      */
 
     private boolean tryAllot(int id, int[] rVector) {
-        int[] tAvai = available.clone();
-        int[][] tAllca = allcation.clone();
-        int[][] tneed = need.clone();
-        tAvai = vectorSub(tAvai, rVector);
-        tAllca[id] = vectorAdd(tAllca[id], rVector);
-        tneed[id] = vectorSub(tneed[id], rVector);
-        return safe();
+        cloneSome();
+        tAvailable = vectorSub(tAvailable, rVector);
+        tAllcation[id] = vectorAdd(tAllcation[id], rVector);
+        tNeed[id] = vectorSub(tNeed[id], rVector);
+        Boolean flag=Boolean.FALSE;
+        for(int i=0;i<totalP;i++){
+            if(flag)break;
+            if(finish[i]&&bAE(tNeed[i],tAvailable)){
+                int[] t=tAvailable.clone();
+                safeTest(tAvailable,flag,i);
+
+            }
+
+        }
+
+        return flag;
+
 
     }
+
+    /**
+     *
+     * @return 是否安全
+     */
+    private void safeTest(int[] work,Boolean flag,int id) {
+
+    }
+
+    private void cloneSome(){
+        tAvailable = available.clone();
+        tAllcation = allcation.clone();
+        tNeed = need.clone();
+        Arrays.fill(finish,false);
+    }
+
 
     /**
      *
@@ -186,13 +221,7 @@ public class DeadLock {
         return a;
     }
 
-    /**
-     *
-     * @return 是否安全
-     */
-    private boolean safe() {
-        return true;
-    }
+
 
 
 }
